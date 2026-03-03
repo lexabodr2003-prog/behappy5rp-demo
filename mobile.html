@@ -1,0 +1,2400 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BeHappy5RP – Mobile Concept</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #030712;
+  --bg2: #070d1a;
+  --bg3: #0a1120;
+  --card: rgba(10,17,35,0.85);
+  --card2: rgba(14,22,45,0.9);
+  --border: rgba(0,212,255,0.15);
+  --border2: rgba(255,255,255,0.07);
+  --cyan: #00d4ff;
+  --green: #00ff88;
+  --gold: #ffd700;
+  --purple: #a855f7;
+  --pink: #ff0080;
+  --red: #ff4757;
+  --text: #e2e8f0;
+  --text2: #94a3b8;
+  --text3: #4a5568;
+  --nav-h: 72px;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --font: 'Space Grotesk', sans-serif;
+  --font-num: 'Rajdhani', sans-serif;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+html, body {
+  width:100%; height:100%; overflow:hidden;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font);
+  font-size:16px;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ===== APP SHELL ===== */
+#app {
+  position:fixed; inset:0;
+  display:flex; flex-direction:column;
+  background:var(--bg);
+}
+
+/* ===== CANVAS BG ===== */
+#bg-canvas {
+  position:fixed; inset:0; z-index:0;
+  pointer-events:none;
+}
+
+/* ===== SCREENS ===== */
+#screens {
+  flex:1;
+  position:relative;
+  overflow:hidden;
+  z-index:1;
+}
+
+.screen {
+  position:absolute; inset:0;
+  overflow-y:auto;
+  overflow-x:hidden;
+  overscroll-behavior:contain;
+  padding-bottom:calc(var(--nav-h) + var(--safe-bottom) + 16px);
+  opacity:0;
+  transform:translateX(100%);
+  transition:transform 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.4s ease;
+  pointer-events:none;
+  -webkit-overflow-scrolling:touch;
+}
+
+.screen.active {
+  opacity:1;
+  transform:translateX(0);
+  pointer-events:all;
+}
+
+.screen.prev {
+  opacity:0;
+  transform:translateX(-30%);
+}
+
+/* ===== NAV BAR ===== */
+#nav-bar {
+  height:calc(var(--nav-h) + var(--safe-bottom));
+  padding-bottom:var(--safe-bottom);
+  background:rgba(7,13,26,0.95);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  border-top:1px solid var(--border);
+  display:flex;
+  align-items:stretch;
+  z-index:100;
+  position:relative;
+}
+
+.nav-item {
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  cursor:pointer;
+  position:relative;
+  transition:all 0.2s ease;
+  padding:8px 4px;
+  border:none;
+  background:none;
+  color:var(--text3);
+  -webkit-tap-highlight-color:transparent;
+}
+
+.nav-item.active { color:var(--cyan); }
+
+.nav-item .nav-icon {
+  width:24px; height:24px;
+  display:flex; align-items:center; justify-content:center;
+  position:relative;
+  transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+.nav-item.active .nav-icon {
+  transform:translateY(-2px) scale(1.1);
+  filter:drop-shadow(0 0 8px var(--cyan));
+}
+
+.nav-item .nav-label {
+  font-size:10px;
+  font-weight:500;
+  letter-spacing:0.02em;
+  transition:all 0.2s;
+}
+
+.nav-item .nav-dot {
+  position:absolute;
+  top:6px; right:50%;
+  width:6px; height:6px;
+  border-radius:50%;
+  background:var(--cyan);
+  transform:translateX(14px);
+  box-shadow:0 0 8px var(--cyan);
+  animation:navPulse 2s infinite;
+}
+
+@keyframes navPulse {
+  0%,100%{opacity:1;transform:translateX(14px) scale(1)}
+  50%{opacity:0.6;transform:translateX(14px) scale(1.3)}
+}
+
+/* Active indicator line */
+.nav-item.active::before {
+  content:'';
+  position:absolute;
+  bottom:0; left:50%;
+  width:24px; height:2px;
+  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+  transform:translateX(-50%);
+  border-radius:2px;
+  box-shadow:0 0 8px var(--cyan);
+}
+
+/* ===== RIPPLE ===== */
+.ripple {
+  position:absolute;
+  border-radius:50%;
+  background:rgba(0,212,255,0.25);
+  transform:scale(0);
+  animation:rippleAnim 0.6s linear;
+  pointer-events:none;
+}
+@keyframes rippleAnim {
+  to { transform:scale(4); opacity:0; }
+}
+
+/* ===== PAGE HEADER ===== */
+.page-header {
+  padding:20px 20px 0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:20px;
+}
+
+.page-title {
+  font-size:22px;
+  font-weight:700;
+  font-family:var(--font-num);
+  background:linear-gradient(135deg,var(--text),var(--cyan));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+.page-subtitle {
+  font-size:12px;
+  color:var(--text2);
+  margin-top:2px;
+}
+
+.header-action {
+  width:40px; height:40px;
+  border-radius:12px;
+  background:var(--card);
+  border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+  position:relative;
+  overflow:hidden;
+}
+
+/* ===== GLASS CARD ===== */
+.glass-card {
+  background:var(--card);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  position:relative;
+  overflow:hidden;
+  transition:transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glass-card::before {
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg,rgba(0,212,255,0.05),transparent,rgba(168,85,247,0.03));
+  pointer-events:none;
+}
+
+.glass-card.tap-active {
+  transform:scale(0.98);
+}
+
+/* ===== STAT CARDS (Dashboard) ===== */
+.stat-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  padding:0 16px;
+  margin-bottom:16px;
+}
+
+.stat-card {
+  padding:16px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  position:relative;
+  overflow:hidden;
+  transition:transform 0.15s ease;
+}
+
+.stat-card::after {
+  content:'';
+  position:absolute;
+  top:0; left:0; right:0;
+  height:2px;
+  background:var(--accent, var(--cyan));
+  box-shadow:0 0 12px var(--accent, var(--cyan));
+}
+
+.stat-card .s-label {
+  font-size:11px;
+  color:var(--text2);
+  font-weight:500;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+
+.stat-card .s-value {
+  font-size:24px;
+  font-weight:700;
+  font-family:var(--font-num);
+  color:var(--text);
+  line-height:1;
+  margin-bottom:4px;
+}
+
+.stat-card .s-change {
+  font-size:11px;
+  color:var(--green);
+  display:flex;
+  align-items:center;
+  gap:3px;
+}
+
+.stat-card .s-change.down { color:var(--red); }
+
+.stat-card .s-icon {
+  position:absolute;
+  top:12px; right:12px;
+  width:32px; height:32px;
+  border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:16px;
+  background:rgba(0,212,255,0.1);
+}
+
+/* ===== SHIMMER ===== */
+.shimmer {
+  background:linear-gradient(90deg,transparent 0%,rgba(0,212,255,0.08) 50%,transparent 100%);
+  background-size:200% 100%;
+  animation:shimmerAnim 2s infinite;
+}
+@keyframes shimmerAnim {
+  0%{background-position:200% 0}
+  100%{background-position:-200% 0}
+}
+
+/* ===== CHART AREA ===== */
+.chart-container {
+  margin:0 16px 16px;
+  padding:16px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  position:relative;
+}
+
+.chart-title {
+  font-size:13px;
+  font-weight:600;
+  color:var(--text2);
+  margin-bottom:12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.chart-title span {
+  color:var(--text);
+}
+
+.chart-pills {
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+
+.cpill {
+  padding:3px 10px;
+  border-radius:20px;
+  font-size:10px;
+  font-weight:600;
+  cursor:pointer;
+  border:1px solid var(--border);
+  color:var(--text2);
+  background:transparent;
+  transition:all 0.2s;
+}
+
+.cpill.active {
+  background:rgba(0,212,255,0.15);
+  border-color:var(--cyan);
+  color:var(--cyan);
+}
+
+canvas { display:block; }
+
+/* ===== LIST ITEM with swipe ===== */
+.swipe-list { 
+  padding:0 16px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.swipe-item {
+  position:relative;
+  border-radius:var(--radius-sm);
+  overflow:hidden;
+  user-select:none;
+}
+
+.swipe-item-bg {
+  position:absolute;
+  right:0; top:0; bottom:0;
+  width:80px;
+  background:var(--red);
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px;
+  border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+  opacity:0;
+  transition:opacity 0.2s;
+}
+
+.swipe-item-bg.green { background:var(--green); }
+
+.swipe-item-front {
+  background:var(--card2);
+  border:1px solid var(--border2);
+  border-radius:var(--radius-sm);
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  transform:translateX(0);
+  transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  position:relative;
+  z-index:1;
+}
+
+.swipe-item.swiped .swipe-item-front {
+  transform:translateX(-72px);
+}
+
+.swipe-item.swiped .swipe-item-bg {
+  opacity:1;
+}
+
+.item-icon {
+  width:38px; height:38px;
+  border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px;
+  flex-shrink:0;
+}
+
+.item-content { flex:1; min-width:0; }
+
+.item-title {
+  font-size:14px;
+  font-weight:600;
+  color:var(--text);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.item-sub {
+  font-size:11px;
+  color:var(--text2);
+  margin-top:2px;
+}
+
+.item-amount {
+  font-family:var(--font-num);
+  font-size:16px;
+  font-weight:700;
+  text-align:right;
+}
+
+.item-amount.pos { color:var(--green); }
+.item-amount.neg { color:var(--red); }
+
+/* ===== PULL TO REFRESH ===== */
+#ptr-indicator {
+  position:absolute;
+  top:0; left:50%;
+  transform:translateX(-50%) translateY(-60px);
+  width:40px; height:40px;
+  border-radius:50%;
+  background:var(--card);
+  border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  transition:transform 0.3s;
+  z-index:10;
+  font-size:20px;
+}
+
+#ptr-indicator.visible {
+  transform:translateX(-50%) translateY(16px);
+}
+
+#ptr-indicator.loading span {
+  animation:spin 0.8s linear infinite;
+}
+@keyframes spin { to{transform:rotate(360deg)} }
+
+/* ===== BOTTOM SHEET ===== */
+#overlay {
+  position:fixed; inset:0;
+  background:rgba(0,0,0,0.6);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  z-index:200;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 0.3s;
+}
+#overlay.visible {
+  opacity:1;
+  pointer-events:all;
+}
+
+.bottom-sheet {
+  position:fixed;
+  left:0; right:0; bottom:0;
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-bottom:none;
+  border-radius:24px 24px 0 0;
+  z-index:201;
+  transform:translateY(100%);
+  transition:transform 0.4s cubic-bezier(0.4,0,0.2,1);
+  max-height:90vh;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  padding-bottom:calc(24px + var(--safe-bottom));
+}
+
+.bottom-sheet.open {
+  transform:translateY(0);
+}
+
+.bs-handle {
+  width:40px; height:4px;
+  background:var(--border);
+  border-radius:2px;
+  margin:12px auto 20px;
+}
+
+.bs-title {
+  font-size:18px;
+  font-weight:700;
+  padding:0 20px 16px;
+  font-family:var(--font-num);
+}
+
+/* ===== FORM ELEMENTS ===== */
+.form-group {
+  padding:0 20px;
+  margin-bottom:16px;
+}
+
+.form-label {
+  font-size:12px;
+  font-weight:600;
+  color:var(--text2);
+  letter-spacing:0.05em;
+  text-transform:uppercase;
+  margin-bottom:8px;
+  display:block;
+}
+
+.form-input {
+  width:100%;
+  padding:14px 16px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  border-radius:12px;
+  color:var(--text);
+  font-family:var(--font);
+  font-size:15px;
+  outline:none;
+  transition:border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-input:focus {
+  border-color:var(--cyan);
+  box-shadow:0 0 0 3px rgba(0,212,255,0.1);
+}
+
+.form-select {
+  appearance:none;
+  -webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 14px center;
+}
+
+.btn-primary {
+  width:calc(100% - 40px);
+  margin:0 20px;
+  padding:16px;
+  background:linear-gradient(135deg,var(--cyan),#0080ff);
+  border:none;
+  border-radius:14px;
+  color:#000;
+  font-family:var(--font);
+  font-size:15px;
+  font-weight:700;
+  cursor:pointer;
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 0 30px rgba(0,212,255,0.3);
+  transition:transform 0.15s, box-shadow 0.15s;
+  letter-spacing:0.02em;
+}
+
+.btn-primary:active {
+  transform:scale(0.97);
+  box-shadow:0 0 15px rgba(0,212,255,0.2);
+}
+
+/* ===== TOAST ===== */
+#toast {
+  position:fixed;
+  top:20px; left:50%;
+  transform:translateX(-50%) translateY(-80px);
+  background:var(--card2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:12px 20px;
+  font-size:14px;
+  font-weight:600;
+  z-index:300;
+  white-space:nowrap;
+  transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+#toast.show {
+  transform:translateX(-50%) translateY(0);
+}
+
+/* ===== TICKER ===== */
+#ticker {
+  position:fixed;
+  bottom:calc(var(--nav-h) + var(--safe-bottom));
+  left:0; right:0;
+  height:28px;
+  background:rgba(3,7,18,0.9);
+  border-top:1px solid var(--border);
+  overflow:hidden;
+  z-index:99;
+  display:flex;
+  align-items:center;
+}
+
+.ticker-track {
+  display:flex;
+  gap:40px;
+  animation:tickerMove 20s linear infinite;
+  white-space:nowrap;
+  padding-left:100%;
+}
+
+.ticker-item {
+  font-size:11px;
+  color:var(--text2);
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.ticker-item .tv { color:var(--green); font-family:var(--font-num); font-weight:700; }
+.ticker-item .tr { color:var(--red); font-family:var(--font-num); font-weight:700; }
+.ticker-item .tg { color:var(--gold); font-family:var(--font-num); font-weight:700; }
+
+@keyframes tickerMove {
+  from{transform:translateX(0)}
+  to{transform:translateX(-100%)}
+}
+
+/* ===== SCREENS CONTENT ===== */
+
+/* SPLASH */
+#screen-splash {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  min-height:100vh;
+  padding-bottom:0 !important;
+  background:radial-gradient(ellipse at 50% 40%, rgba(0,212,255,0.08) 0%, transparent 70%);
+}
+
+.splash-logo {
+  width:100px; height:100px;
+  background:linear-gradient(135deg,rgba(0,212,255,0.2),rgba(168,85,247,0.2));
+  border:1px solid var(--border);
+  border-radius:28px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:44px;
+  margin-bottom:28px;
+  box-shadow:0 0 60px rgba(0,212,255,0.2);
+  animation:logoFloat 3s ease-in-out infinite;
+}
+
+@keyframes logoFloat {
+  0%,100%{transform:translateY(0) rotate(0deg)}
+  50%{transform:translateY(-8px) rotate(2deg)}
+}
+
+.splash-title {
+  font-family:var(--font-num);
+  font-size:38px;
+  font-weight:700;
+  background:linear-gradient(135deg,var(--cyan),var(--purple));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  margin-bottom:8px;
+}
+
+.splash-sub {
+  font-size:14px;
+  color:var(--text2);
+  margin-bottom:48px;
+}
+
+.splash-loader {
+  width:200px; height:3px;
+  background:rgba(255,255,255,0.08);
+  border-radius:2px;
+  overflow:hidden;
+}
+
+.splash-progress {
+  height:100%;
+  background:linear-gradient(90deg,var(--cyan),var(--purple));
+  border-radius:2px;
+  animation:loadProgress 2s cubic-bezier(0.4,0,0.2,1) forwards;
+}
+
+@keyframes loadProgress {
+  from{width:0}
+  to{width:100%}
+}
+
+/* DASHBOARD */
+.filter-pills {
+  display:flex;
+  gap:8px;
+  padding:0 16px 16px;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.filter-pills::-webkit-scrollbar { display:none; }
+
+.fpill {
+  padding:6px 14px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:600;
+  cursor:pointer;
+  border:1px solid var(--border);
+  color:var(--text2);
+  background:transparent;
+  white-space:nowrap;
+  transition:all 0.2s;
+  flex-shrink:0;
+}
+
+.fpill.active {
+  background:rgba(0,212,255,0.15);
+  border-color:var(--cyan);
+  color:var(--cyan);
+  box-shadow:0 0 12px rgba(0,212,255,0.2);
+}
+
+/* WHEEL */
+.wheel-wrapper {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:20px 16px;
+}
+
+#wheel-canvas {
+  width:280px; height:280px;
+  filter:drop-shadow(0 0 30px rgba(0,212,255,0.3));
+  cursor:pointer;
+  transition:transform 0.1s;
+}
+
+#wheel-canvas:active {
+  transform:scale(0.98);
+}
+
+.wheel-pointer {
+  font-size:32px;
+  margin-bottom:-10px;
+  z-index:2;
+  animation:pointerBob 1.5s ease-in-out infinite;
+}
+@keyframes pointerBob {
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-4px)}
+}
+
+.spin-btn {
+  margin-top:20px;
+  padding:16px 48px;
+  background:linear-gradient(135deg,var(--gold),#ff8c00);
+  border:none;
+  border-radius:14px;
+  color:#000;
+  font-family:var(--font);
+  font-size:16px;
+  font-weight:700;
+  cursor:pointer;
+  box-shadow:0 0 30px rgba(255,215,0,0.3);
+  transition:transform 0.15s, box-shadow 0.15s;
+  position:relative;
+  overflow:hidden;
+  letter-spacing:0.03em;
+}
+
+.spin-btn:active { transform:scale(0.96); }
+.spin-btn:disabled {
+  opacity:0.5;
+  cursor:not-allowed;
+}
+
+.wheel-prizes-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  width:100%;
+  margin-top:16px;
+}
+
+.prize-card {
+  padding:12px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:13px;
+}
+
+.prize-card .p-icon {
+  width:36px; height:36px;
+  border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px;
+}
+
+/* PROFILE */
+.profile-header {
+  padding:24px 20px 0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+  margin-bottom:20px;
+}
+
+.avatar-wrap {
+  position:relative;
+  display:inline-block;
+}
+
+.avatar {
+  width:80px; height:80px;
+  border-radius:50%;
+  background:linear-gradient(135deg,var(--cyan),var(--purple));
+  display:flex; align-items:center; justify-content:center;
+  font-size:32px;
+  border:3px solid rgba(0,212,255,0.3);
+  box-shadow:0 0 30px rgba(0,212,255,0.2);
+}
+
+.avatar-badge {
+  position:absolute;
+  bottom:2px; right:2px;
+  width:20px; height:20px;
+  background:var(--gold);
+  border-radius:50%;
+  border:2px solid var(--bg);
+  display:flex; align-items:center; justify-content:center;
+  font-size:10px;
+}
+
+.profile-name {
+  font-size:20px;
+  font-weight:700;
+  font-family:var(--font-num);
+}
+
+.profile-sub-badge {
+  padding:4px 12px;
+  background:linear-gradient(135deg,rgba(255,215,0,0.2),rgba(255,140,0,0.1));
+  border:1px solid rgba(255,215,0,0.3);
+  border-radius:20px;
+  font-size:11px;
+  color:var(--gold);
+  font-weight:600;
+}
+
+.streak-card {
+  margin:0 16px 12px;
+  padding:16px 20px;
+  background:linear-gradient(135deg,rgba(0,212,255,0.1),rgba(168,85,247,0.08));
+  border:1px solid rgba(0,212,255,0.2);
+  border-radius:var(--radius);
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+
+.streak-fire {
+  font-size:36px;
+  animation:fireFlicker 1s ease-in-out infinite alternate;
+}
+@keyframes fireFlicker {
+  from{transform:scale(1) rotate(-2deg)}
+  to{transform:scale(1.1) rotate(2deg)}
+}
+
+.streak-num {
+  font-size:36px;
+  font-weight:700;
+  font-family:var(--font-num);
+  color:var(--gold);
+  line-height:1;
+}
+
+.achievement-grid {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  padding:0 16px;
+  margin-bottom:16px;
+}
+
+.ach-card {
+  padding:14px 8px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  text-align:center;
+}
+
+.ach-icon { font-size:24px; }
+.ach-title { font-size:10px; color:var(--text2); font-weight:500; }
+.ach-val { font-size:16px; font-weight:700; font-family:var(--font-num); color:var(--text); }
+
+/* CASINO */
+.casino-live-card {
+  margin:0 16px 16px;
+  padding:20px;
+  background:linear-gradient(135deg,rgba(168,85,247,0.15),rgba(255,0,128,0.08));
+  border:1px solid rgba(168,85,247,0.3);
+  border-radius:var(--radius);
+  text-align:center;
+}
+
+.casino-balance {
+  font-size:42px;
+  font-weight:700;
+  font-family:var(--font-num);
+  background:linear-gradient(135deg,var(--purple),var(--pink));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  line-height:1;
+  margin-bottom:4px;
+}
+
+.casino-label {
+  font-size:12px;
+  color:var(--text2);
+  font-weight:500;
+}
+
+/* FAMILY HUB */
+.family-hero {
+  margin:0 16px 16px;
+  padding:20px;
+  background:linear-gradient(135deg,rgba(0,255,136,0.1),rgba(0,212,255,0.05));
+  border:1px solid rgba(0,255,136,0.2);
+  border-radius:var(--radius);
+  text-align:center;
+}
+
+.family-tag {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:4px 12px;
+  background:rgba(0,255,136,0.15);
+  border:1px solid rgba(0,255,136,0.3);
+  border-radius:20px;
+  font-size:12px;
+  color:var(--green);
+  font-weight:600;
+  margin-bottom:12px;
+}
+
+.family-name {
+  font-size:26px;
+  font-weight:700;
+  font-family:var(--font-num);
+  margin-bottom:4px;
+}
+
+.family-level {
+  font-size:13px;
+  color:var(--text2);
+}
+
+/* SEGMENTS */
+.segment-tabs {
+  display:flex;
+  gap:4px;
+  padding:4px;
+  background:rgba(255,255,255,0.04);
+  border-radius:12px;
+  margin:0 16px 16px;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.segment-tabs::-webkit-scrollbar{display:none}
+
+.seg-tab {
+  flex:1;
+  padding:8px 12px;
+  border:none;
+  background:none;
+  border-radius:9px;
+  color:var(--text2);
+  font-family:var(--font);
+  font-size:12px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all 0.2s;
+  white-space:nowrap;
+  min-width:max-content;
+}
+
+.seg-tab.active {
+  background:var(--card2);
+  color:var(--cyan);
+  box-shadow:0 2px 8px rgba(0,0,0,0.3);
+}
+
+/* PROGRESS BAR */
+.prog-wrap {
+  margin-bottom:10px;
+}
+
+.prog-label {
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:6px;
+  font-size:12px;
+}
+
+.prog-track {
+  height:6px;
+  background:rgba(255,255,255,0.06);
+  border-radius:3px;
+  overflow:hidden;
+}
+
+.prog-fill {
+  height:100%;
+  border-radius:3px;
+  background:linear-gradient(90deg,var(--c1,var(--cyan)),var(--c2,#0080ff));
+  box-shadow:0 0 8px var(--c1,var(--cyan));
+  transform:scaleX(0);
+  transform-origin:left;
+  transition:transform 1s cubic-bezier(0.4,0,0.2,1);
+}
+
+.prog-fill.animated { transform:scaleX(1); }
+
+/* BADGE */
+.badge {
+  padding:2px 8px;
+  border-radius:6px;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:0.04em;
+}
+
+.badge-cyan { background:rgba(0,212,255,0.15); color:var(--cyan); border:1px solid rgba(0,212,255,0.3); }
+.badge-gold { background:rgba(255,215,0,0.15); color:var(--gold); border:1px solid rgba(255,215,0,0.3); }
+.badge-green { background:rgba(0,255,136,0.15); color:var(--green); border:1px solid rgba(0,255,136,0.3); }
+.badge-purple { background:rgba(168,85,247,0.15); color:var(--purple); border:1px solid rgba(168,85,247,0.3); }
+.badge-red { background:rgba(255,71,87,0.15); color:var(--red); border:1px solid rgba(255,71,87,0.3); }
+.badge-live { background:rgba(255,71,87,0.2); color:var(--red); border:1px solid rgba(255,71,87,0.4); animation:livePulse 1.5s infinite; }
+@keyframes livePulse{0%,100%{opacity:1}50%{opacity:0.6}}
+
+/* SECTION TITLE */
+.section-title {
+  padding:0 16px;
+  margin-bottom:12px;
+  font-size:13px;
+  font-weight:600;
+  color:var(--text2);
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.section-title .see-all {
+  font-size:11px;
+  color:var(--cyan);
+  font-weight:500;
+  text-transform:none;
+  letter-spacing:0;
+  cursor:pointer;
+}
+
+/* MINI CHART */
+.mini-chart-svg path {
+  stroke-dasharray:1000;
+  stroke-dashoffset:1000;
+  animation:drawLine 1.5s cubic-bezier(0.4,0,0.2,1) forwards 0.3s;
+}
+@keyframes drawLine { to{stroke-dashoffset:0} }
+
+/* BP FARM GRID */
+.bp-task-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  padding:0 16px;
+  margin-bottom:16px;
+}
+
+.bp-task {
+  padding:14px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  cursor:pointer;
+  transition:all 0.2s;
+  position:relative;
+  overflow:hidden;
+}
+
+.bp-task.done {
+  border-color:rgba(0,255,136,0.3);
+  background:rgba(0,255,136,0.06);
+}
+
+.bp-task.done::after {
+  content:'✓';
+  position:absolute;
+  top:8px; right:8px;
+  width:18px; height:18px;
+  background:var(--green);
+  border-radius:50%;
+  color:#000;
+  font-size:10px;
+  font-weight:700;
+  display:flex; align-items:center; justify-content:center;
+  animation:checkPop 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes checkPop{from{transform:scale(0)}to{transform:scale(1)}}
+
+.bp-task .t-icon { font-size:22px; margin-bottom:8px; }
+.bp-task .t-name { font-size:12px; font-weight:600; color:var(--text); margin-bottom:4px; }
+.bp-task .t-pts { font-size:14px; font-weight:700; font-family:var(--font-num); color:var(--gold); }
+
+/* LONG PRESS MENU */
+#ctx-menu {
+  position:fixed;
+  background:var(--card2);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:8px 0;
+  z-index:250;
+  min-width:160px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.5);
+  transform:scale(0.8);
+  opacity:0;
+  pointer-events:none;
+  transition:transform 0.2s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s;
+  transform-origin:top left;
+}
+
+#ctx-menu.show {
+  transform:scale(1);
+  opacity:1;
+  pointer-events:all;
+}
+
+.ctx-item {
+  padding:12px 16px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:14px;
+  cursor:pointer;
+  transition:background 0.15s;
+}
+
+.ctx-item:hover { background:rgba(255,255,255,0.05); }
+.ctx-item.danger { color:var(--red); }
+
+/* COUNTER ANIMATION */
+.counter {
+  display:inline-block;
+}
+
+/* SECTION PADDING */
+.section-pad {
+  padding-top:16px;
+}
+
+/* HORIZONTAL SCROLL CARDS */
+.h-scroll {
+  display:flex;
+  gap:12px;
+  padding:0 16px 4px;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.h-scroll::-webkit-scrollbar{display:none}
+
+.h-card {
+  flex-shrink:0;
+  width:160px;
+  padding:16px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:14px;
+}
+
+/* EMPTY STATE */
+.empty-state {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:40px 20px;
+  text-align:center;
+  gap:12px;
+  color:var(--text2);
+}
+
+.empty-state .e-icon { font-size:48px; opacity:0.5; }
+.empty-state .e-title { font-size:16px; font-weight:600; color:var(--text); }
+.empty-state .e-sub { font-size:13px; color:var(--text2); }
+
+/* ANIMATIONS ENTRANCE */
+.fade-up {
+  opacity:0;
+  transform:translateY(20px);
+  transition:opacity 0.4s ease, transform 0.4s ease;
+}
+
+.fade-up.in {
+  opacity:1;
+  transform:translateY(0);
+}
+
+.scale-in {
+  opacity:0;
+  transform:scale(0.9);
+  transition:opacity 0.3s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.scale-in.in {
+  opacity:1;
+  transform:scale(1);
+}
+
+/* GESTURE HINTS */
+.gesture-hint {
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:11px;
+  color:var(--text3);
+  padding:0 16px;
+  margin-bottom:8px;
+}
+
+.gesture-hint span { font-size:14px; }
+
+/* MORE SCREEN link */
+.more-btn {
+  padding:14px 20px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  border-bottom:1px solid var(--border2);
+  cursor:pointer;
+  transition:background 0.15s;
+  font-size:14px;
+  font-weight:500;
+}
+.more-btn:hover { background:rgba(255,255,255,0.03); }
+.more-btn .mb-icon {
+  width:38px; height:38px;
+  border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px;
+  flex-shrink:0;
+}
+.more-btn .mb-arrow { margin-left:auto; color:var(--text3); font-size:12px; }
+
+/* NAV SVG ICONS */
+.nav-svg { width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<!-- Toast -->
+<div id="toast">
+  <span id="toast-icon">✓</span>
+  <span id="toast-text">Успешно!</span>
+</div>
+
+<!-- Context Menu -->
+<div id="ctx-menu">
+  <div class="ctx-item" onclick="ctxEdit()">✏️ Редактировать</div>
+  <div class="ctx-item" onclick="ctxCopy()">📋 Копировать</div>
+  <div class="ctx-item danger" onclick="ctxDelete()">🗑️ Удалить</div>
+</div>
+
+<!-- Overlay -->
+<div id="overlay" onclick="closeAllSheets()"></div>
+
+<!-- ADD RENTAL BOTTOM SHEET -->
+<div class="bottom-sheet" id="sheet-rental">
+  <div class="bs-handle"></div>
+  <div class="bs-title">🚗 Новая аренда</div>
+  <div class="form-group">
+    <label class="form-label">Модель автомобиля</label>
+    <select class="form-input form-select" style="background:rgba(10,17,35,0.9);color:var(--text)">
+      <option>Выбери авто...</option>
+      <option>Pegassi Zentorno</option>
+      <option>Bravado Buffalo STX</option>
+      <option>Vapid Dominator</option>
+      <option>Declasse Turismo Custom</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label class="form-label">Цена / час ($)</label>
+    <input class="form-input" type="number" placeholder="5 000">
+  </div>
+  <div class="form-group">
+    <label class="form-label">Дата</label>
+    <input class="form-input" type="datetime-local" style="color-scheme:dark">
+  </div>
+  <button class="btn-primary" onclick="submitRental()">✓ Записать аренду</button>
+</div>
+
+<!-- CASINO SESSION BOTTOM SHEET -->
+<div class="bottom-sheet" id="sheet-casino">
+  <div class="bs-handle"></div>
+  <div class="bs-title">🎰 Новая сессия</div>
+  <div class="form-group">
+    <label class="form-label">Тип игры</label>
+    <select class="form-input form-select" style="background:rgba(10,17,35,0.9);color:var(--text)">
+      <option>Слоты</option>
+      <option>Рулетка</option>
+      <option>Колесо фортуны</option>
+      <option>Другое</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label class="form-label">Занёс ($)</label>
+    <input class="form-input" type="number" placeholder="50 000">
+  </div>
+  <div class="form-group">
+    <label class="form-label">Вывел ($)</label>
+    <input class="form-input" type="number" placeholder="75 000">
+  </div>
+  <button class="btn-primary" onclick="submitCasino()">✓ Записать сессию</button>
+</div>
+
+<!-- APP SHELL -->
+<div id="app">
+  <div id="screens">
+
+    <!-- SPLASH -->
+    <div class="screen active" id="screen-splash">
+      <div class="splash-logo">🎮</div>
+      <div class="splash-title">BeHappy</div>
+      <div class="splash-sub">GTA5RP · Трекер доходов</div>
+      <div class="splash-loader">
+        <div class="splash-progress"></div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="screen" id="screen-dashboard">
+      <div id="ptr-indicator"><span>↻</span></div>
+
+      <div class="page-header">
+        <div>
+          <div class="page-title">Дашборд</div>
+          <div class="page-subtitle">Финансы в реальном времени</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <div class="header-action" onclick="showToast('🔔 Уведомлений нет','badge-cyan')">
+            🔔<span style="position:absolute;top:6px;right:6px;width:7px;height:7px;background:var(--cyan);border-radius:50%;"></span>
+          </div>
+          <div class="header-action" style="background:linear-gradient(135deg,rgba(0,212,255,0.15),rgba(168,85,247,0.1));border-color:rgba(0,212,255,0.3)">ЛА</div>
+        </div>
+      </div>
+
+      <div class="filter-pills">
+        <button class="fpill active" onclick="setFilter(this)">Всё время</button>
+        <button class="fpill" onclick="setFilter(this)">Месяц</button>
+        <button class="fpill" onclick="setFilter(this)">Неделя</button>
+        <button class="fpill" onclick="setFilter(this)">Сегодня</button>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card fade-up" style="--accent:var(--cyan)" onclick="tapCard(this)">
+          <div class="s-icon">💎</div>
+          <div class="s-label">Общий доход</div>
+          <div class="s-value"><span class="counter" data-target="2847500">0</span><span style="font-size:14px;color:var(--text2)">$</span></div>
+          <div class="s-change">▲ +12.4%</div>
+          <div class="shimmer" style="position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0.4"></div>
+        </div>
+        <div class="stat-card fade-up" style="--accent:var(--green);animation-delay:0.05s" onclick="tapCard(this)">
+          <div class="s-icon" style="background:rgba(0,255,136,0.1)">🚗</div>
+          <div class="s-label">С аренды</div>
+          <div class="s-value"><span class="counter" data-target="1523000">0</span><span style="font-size:14px;color:var(--text2)">$</span></div>
+          <div class="s-change">▲ +8.1%</div>
+        </div>
+        <div class="stat-card fade-up" style="--accent:var(--gold);animation-delay:0.1s" onclick="tapCard(this)">
+          <div class="s-icon" style="background:rgba(255,215,0,0.1)">📈</div>
+          <div class="s-label">Перекуп</div>
+          <div class="s-value"><span class="counter" data-target="892000">0</span><span style="font-size:14px;color:var(--text2)">$</span></div>
+          <div class="s-change">▲ +18.7%</div>
+        </div>
+        <div class="stat-card fade-up" style="--accent:var(--purple);animation-delay:0.15s" onclick="tapCard(this)">
+          <div class="s-icon" style="background:rgba(168,85,247,0.1)">⚡</div>
+          <div class="s-label">Ср. / час</div>
+          <div class="s-value"><span class="counter" data-target="24800">0</span><span style="font-size:14px;color:var(--text2)">$</span></div>
+          <div class="s-change down">▼ -2.3%</div>
+        </div>
+      </div>
+
+      <!-- Mini Chart -->
+      <div class="chart-container fade-up">
+        <div class="chart-title">
+          <span>Доход за неделю</span>
+          <div class="chart-pills">
+            <button class="cpill active">Аренда</button>
+            <button class="cpill" style="--c:var(--gold)">Перекуп</button>
+            <button class="cpill" style="--c:var(--purple)">Казино</button>
+          </div>
+        </div>
+        <canvas id="mini-chart" height="120"></canvas>
+      </div>
+
+      <!-- Top Cars -->
+      <div class="section-title fade-up">
+        <span>🏆 Топ авто по доходу</span>
+        <span class="see-all">Все →</span>
+      </div>
+
+      <div class="gesture-hint">
+        <span>👈</span> Свайп влево для действий
+      </div>
+
+      <div class="swipe-list">
+        <div class="swipe-item fade-up" data-id="1">
+          <div class="swipe-item-bg green">✏️</div>
+          <div class="swipe-item-front" ontouchstart="swipeStart(this,event)" ontouchmove="swipeMove(this,event)" ontouchend="swipeEnd(this,event)" oncontextmenu="showCtx(event,1)">
+            <div class="item-icon" style="background:rgba(0,212,255,0.1)">🚗</div>
+            <div class="item-content">
+              <div class="item-title">Pegassi Zentorno</div>
+              <div class="item-sub">24 аренды · 156 ч</div>
+            </div>
+            <div style="text-align:right">
+              <div class="item-amount pos">+$842K</div>
+              <div class="badge badge-cyan" style="font-size:9px">TOP 1</div>
+            </div>
+          </div>
+        </div>
+        <div class="swipe-item fade-up" data-id="2" style="transition-delay:0.05s">
+          <div class="swipe-item-bg">🗑️</div>
+          <div class="swipe-item-front" ontouchstart="swipeStart(this,event)" ontouchmove="swipeMove(this,event)" ontouchend="swipeEnd(this,event)">
+            <div class="item-icon" style="background:rgba(255,215,0,0.1)">🏎️</div>
+            <div class="item-content">
+              <div class="item-title">Buffalo STX</div>
+              <div class="item-sub">18 аренд · 112 ч</div>
+            </div>
+            <div style="text-align:right">
+              <div class="item-amount pos">+$634K</div>
+              <div class="badge badge-gold" style="font-size:9px">TOP 2</div>
+            </div>
+          </div>
+        </div>
+        <div class="swipe-item fade-up" data-id="3" style="transition-delay:0.1s">
+          <div class="swipe-item-bg">🗑️</div>
+          <div class="swipe-item-front" ontouchstart="swipeStart(this,event)" ontouchmove="swipeMove(this,event)" ontouchend="swipeEnd(this,event)">
+            <div class="item-icon" style="background:rgba(0,255,136,0.1)">🚙</div>
+            <div class="item-content">
+              <div class="item-title">Vapid Dominator</div>
+              <div class="item-sub">15 аренд · 98 ч</div>
+            </div>
+            <div style="text-align:right">
+              <div class="item-amount pos">+$412K</div>
+              <div class="badge badge-green" style="font-size:9px">TOP 3</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="section-title fade-up" style="margin-top:16px">
+        <span>⚡ Активность</span>
+        <span class="badge badge-live">LIVE</span>
+      </div>
+
+      <div class="swipe-list" style="margin-bottom:16px">
+        <div class="swipe-item fade-up">
+          <div class="swipe-item-front" style="background:var(--card)">
+            <div class="item-icon" style="background:rgba(0,255,136,0.12);font-size:16px">💸</div>
+            <div class="item-content">
+              <div class="item-title">Аренда · Zentorno</div>
+              <div class="item-sub">2 мин назад · 8 ч</div>
+            </div>
+            <div class="item-amount pos">+$64 000</div>
+          </div>
+        </div>
+        <div class="swipe-item fade-up" style="transition-delay:0.05s">
+          <div class="swipe-item-front" style="background:var(--card)">
+            <div class="item-icon" style="background:rgba(168,85,247,0.12);font-size:16px">🎰</div>
+            <div class="item-content">
+              <div class="item-title">Казино · Слоты</div>
+              <div class="item-sub">1 ч назад</div>
+            </div>
+            <div class="item-amount neg">-$15 000</div>
+          </div>
+        </div>
+        <div class="swipe-item fade-up" style="transition-delay:0.1s">
+          <div class="swipe-item-front" style="background:var(--card)">
+            <div class="item-icon" style="background:rgba(255,215,0,0.12);font-size:16px">📊</div>
+            <div class="item-content">
+              <div class="item-title">Перекуп · Zentorno</div>
+              <div class="item-sub">3 ч назад</div>
+            </div>
+            <div class="item-amount pos">+$120 000</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WHEEL SCREEN -->
+    <div class="screen" id="screen-wheel">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Колесо удачи</div>
+          <div class="page-subtitle">Ежедневный бесплатный спин</div>
+        </div>
+        <span class="badge badge-live">DAILY</span>
+      </div>
+
+      <div class="wheel-wrapper">
+        <div class="wheel-pointer">▼</div>
+        <canvas id="wheel-canvas" width="280" height="280" onclick="spinWheel()"></canvas>
+        <button class="spin-btn" id="spin-btn" onclick="spinWheel()">🎯 Крутить!</button>
+
+        <div style="display:flex;gap:12px;margin-top:16px;width:100%;justify-content:center">
+          <div class="glass-card" style="padding:12px 20px;text-align:center">
+            <div style="font-size:11px;color:var(--text2);margin-bottom:4px">Спинов</div>
+            <div style="font-size:22px;font-weight:700;font-family:var(--font-num);color:var(--cyan)">47</div>
+          </div>
+          <div class="glass-card" style="padding:12px 20px;text-align:center">
+            <div style="font-size:11px;color:var(--text2);margin-bottom:4px">Лучший приз</div>
+            <div style="font-size:22px;font-weight:700;font-family:var(--font-num);color:var(--gold)">$500K</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">Призы</div>
+      <div class="wheel-prizes-grid" style="padding:0 16px">
+        <div class="prize-card">
+          <div class="p-icon" style="background:rgba(255,215,0,0.12)">💰</div>
+          <div><div style="font-size:12px;color:var(--text);font-weight:600">$500 000</div><div style="font-size:10px;color:var(--text2)">Джекпот</div></div>
+        </div>
+        <div class="prize-card">
+          <div class="p-icon" style="background:rgba(0,212,255,0.12)">💎</div>
+          <div><div style="font-size:12px;color:var(--text);font-weight:600">Алмазный ключ</div><div style="font-size:10px;color:var(--text2)">Редкий</div></div>
+        </div>
+        <div class="prize-card">
+          <div class="p-icon" style="background:rgba(0,255,136,0.12)">⚡</div>
+          <div><div style="font-size:12px;color:var(--text);font-weight:600">+1 день VIP</div><div style="font-size:10px;color:var(--text2)">Обычный</div></div>
+        </div>
+        <div class="prize-card">
+          <div class="p-icon" style="background:rgba(168,85,247,0.12)">🎁</div>
+          <div><div style="font-size:12px;color:var(--text);font-weight:600">$50 000</div><div style="font-size:10px;color:var(--text2)">Стандарт</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CASINO SCREEN -->
+    <div class="screen" id="screen-casino">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Казино</div>
+          <div class="page-subtitle">Трекер игровых сессий</div>
+        </div>
+        <div class="header-action" onclick="openSheet('sheet-casino')">+</div>
+      </div>
+
+      <div class="casino-live-card fade-up">
+        <div style="font-size:11px;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.06em">Баланс казино</div>
+        <div class="casino-balance" id="casino-bal">+$432 000</div>
+        <div class="casino-label">За всё время</div>
+      </div>
+
+      <div class="stat-grid fade-up">
+        <div class="stat-card" style="--accent:var(--cyan)">
+          <div class="s-label">Сессий</div>
+          <div class="s-value">28</div>
+        </div>
+        <div class="stat-card" style="--accent:var(--green)">
+          <div class="s-label">Побед</div>
+          <div class="s-value" style="color:var(--green)">19</div>
+        </div>
+        <div class="stat-card" style="--accent:var(--red)">
+          <div class="s-label">Поражений</div>
+          <div class="s-value" style="color:var(--red)">9</div>
+        </div>
+        <div class="stat-card" style="--accent:var(--gold)">
+          <div class="s-label">Лучший</div>
+          <div class="s-value" style="font-size:18px;color:var(--gold)">$500K</div>
+        </div>
+      </div>
+
+      <div class="section-title fade-up">История сессий</div>
+      <div class="swipe-list" style="margin-bottom:16px">
+        <div class="swipe-item fade-up">
+          <div class="swipe-item-bg">🗑️</div>
+          <div class="swipe-item-front" ontouchstart="swipeStart(this,event)" ontouchmove="swipeMove(this,event)" ontouchend="swipeEnd(this,event)">
+            <div class="item-icon" style="background:rgba(168,85,247,0.12)">🎰</div>
+            <div class="item-content">
+              <div class="item-title">Слоты</div>
+              <div class="item-sub">Сегодня · 22:14</div>
+            </div>
+            <div>
+              <div class="item-amount pos">+$75 000</div>
+              <div style="font-size:10px;color:var(--text2);text-align:right">×1.5</div>
+            </div>
+          </div>
+        </div>
+        <div class="swipe-item fade-up" style="transition-delay:0.05s">
+          <div class="swipe-item-bg">🗑️</div>
+          <div class="swipe-item-front" ontouchstart="swipeStart(this,event)" ontouchmove="swipeMove(this,event)" ontouchend="swipeEnd(this,event)">
+            <div class="item-icon" style="background:rgba(255,71,87,0.12)">🎲</div>
+            <div class="item-content">
+              <div class="item-title">Рулетка</div>
+              <div class="item-sub">Вчера · 18:30</div>
+            </div>
+            <div>
+              <div class="item-amount neg">-$45 000</div>
+              <div style="font-size:10px;color:var(--text2);text-align:right">×0.1</div>
+            </div>
+          </div>
+        </div>
+        <div class="swipe-item fade-up" style="transition-delay:0.1s">
+          <div class="swipe-item-bg">🗑️</div>
+          <div class="swipe-item-front" ontouchstart="swipeStart(this,event)" ontouchmove="swipeMove(this,event)" ontouchend="swipeEnd(this,event)">
+            <div class="item-icon" style="background:rgba(255,215,0,0.12)">🎡</div>
+            <div class="item-content">
+              <div class="item-title">Колесо фортуны</div>
+              <div class="item-sub">2 дня назад</div>
+            </div>
+            <div>
+              <div class="item-amount pos">+$500 000</div>
+              <div style="font-size:10px;color:var(--gold);text-align:right">ДЖЕКПОТ!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE SCREEN -->
+    <div class="screen" id="screen-profile">
+      <div class="profile-header">
+        <div class="avatar-wrap">
+          <div class="avatar">🎮</div>
+          <div class="avatar-badge">⭐</div>
+        </div>
+        <div style="text-align:center">
+          <div class="profile-name">lexabodr2003</div>
+          <div style="font-size:12px;color:var(--text2);margin:4px 0">GTA5RP · Уровень 47</div>
+          <div class="profile-sub-badge">✨ BeHappy Pro</div>
+        </div>
+      </div>
+
+      <!-- Streak -->
+      <div class="streak-card fade-up">
+        <div class="streak-fire">🔥</div>
+        <div>
+          <div class="streak-num">14</div>
+          <div style="font-size:12px;color:var(--text2)">дней стрика</div>
+        </div>
+        <div style="margin-left:auto;text-align:right">
+          <div style="font-size:22px;font-weight:700;font-family:var(--font-num);color:var(--cyan)">Lv.2</div>
+          <div style="font-size:11px;color:var(--text2)">реферала</div>
+        </div>
+      </div>
+
+      <!-- Subscription -->
+      <div class="section-title fade-up">Подписка</div>
+      <div style="padding:0 16px;margin-bottom:16px">
+        <div class="glass-card" style="padding:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div style="font-size:15px;font-weight:600">BeHappy Pro</div>
+            <div class="badge badge-gold">АКТИВНА</div>
+          </div>
+          <div class="prog-wrap">
+            <div class="prog-label">
+              <span style="font-size:12px;color:var(--text2)">Истекает через 23 дня</span>
+              <span style="font-size:12px;color:var(--text2)">77%</span>
+            </div>
+            <div class="prog-track">
+              <div class="prog-fill animated" style="width:77%;--c1:var(--gold);--c2:#ff8c00"></div>
+            </div>
+          </div>
+          <button class="btn-primary" style="width:100%;margin:8px 0 0;padding:12px" onclick="showToast('🔑 Введи код активации','badge-gold')">Продлить подписку</button>
+        </div>
+      </div>
+
+      <!-- Achievements -->
+      <div class="section-title fade-up">Достижения</div>
+      <div class="achievement-grid fade-up">
+        <div class="ach-card">
+          <div class="ach-icon">🚗</div>
+          <div class="ach-val" style="color:var(--cyan)">247</div>
+          <div class="ach-title">Аренд</div>
+        </div>
+        <div class="ach-card">
+          <div class="ach-icon">💰</div>
+          <div class="ach-val" style="color:var(--gold)">$2.8M</div>
+          <div class="ach-title">Заработано</div>
+        </div>
+        <div class="ach-card">
+          <div class="ach-icon">🤝</div>
+          <div class="ach-val" style="color:var(--green)">12</div>
+          <div class="ach-title">Рефералов</div>
+        </div>
+        <div class="ach-card">
+          <div class="ach-icon">📊</div>
+          <div class="ach-val" style="color:var(--purple)">89</div>
+          <div class="ach-title">Сделок</div>
+        </div>
+        <div class="ach-card">
+          <div class="ach-icon">🎰</div>
+          <div class="ach-val" style="color:var(--pink)">28</div>
+          <div class="ach-title">Сессий</div>
+        </div>
+        <div class="ach-card">
+          <div class="ach-icon">🔥</div>
+          <div class="ach-val" style="color:var(--red)">14</div>
+          <div class="ach-title">Стрик</div>
+        </div>
+      </div>
+
+      <!-- Telegram -->
+      <div class="section-title fade-up">Telegram-бот</div>
+      <div style="padding:0 16px;margin-bottom:16px">
+        <div class="glass-card" style="padding:16px;display:flex;align-items:center;gap:14px">
+          <div style="font-size:36px">✈️</div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:600;margin-bottom:4px">@BeHappyHelpBot</div>
+            <div style="font-size:12px;color:var(--green)">✓ Telegram привязан</div>
+          </div>
+          <button style="padding:8px 14px;background:rgba(255,71,87,0.15);border:1px solid rgba(255,71,87,0.3);border-radius:8px;color:var(--red);font-size:12px;cursor:pointer;font-family:var(--font)" onclick="showToast('✈️ Telegram отвязан','badge-red')">Отвязать</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MORE SCREEN -->
+    <div class="screen" id="screen-more">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Инструменты</div>
+          <div class="page-subtitle">Все разделы</div>
+        </div>
+      </div>
+
+      <div style="margin:0 16px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+        <div style="padding:10px 16px;font-size:11px;font-weight:600;color:var(--text2);letter-spacing:0.06em;text-transform:uppercase;background:rgba(0,212,255,0.05)">Аренда</div>
+        <div class="more-btn" onclick="navTo('add-rental')">
+          <div class="mb-icon" style="background:rgba(0,212,255,0.1)">➕</div>
+          <span>Добавить аренду</span>
+          <span class="mb-arrow">›</span>
+        </div>
+        <div class="more-btn" onclick="showToast('🚗 Мой гараж','badge-cyan')">
+          <div class="mb-icon" style="background:rgba(0,255,136,0.1)">🚗</div>
+          <span>Мои автомобили</span>
+          <span class="mb-arrow">›</span>
+        </div>
+        <div class="more-btn" onclick="showToast('📋 История аренд','badge-cyan')">
+          <div class="mb-icon" style="background:rgba(168,85,247,0.1)">📋</div>
+          <span>История аренд</span>
+          <span class="mb-arrow">›</span>
+        </div>
+      </div>
+
+      <div style="margin:0 16px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+        <div style="padding:10px 16px;font-size:11px;font-weight:600;color:var(--text2);letter-spacing:0.06em;text-transform:uppercase;background:rgba(255,215,0,0.05)">Бизнес</div>
+        <div class="more-btn" onclick="showToast('📊 Перекуп','badge-gold')">
+          <div class="mb-icon" style="background:rgba(255,215,0,0.1)">💱</div>
+          <span>Калькулятор перекупа</span>
+          <span class="mb-arrow">›</span>
+        </div>
+        <div class="more-btn" onclick="showToast('📈 История сделок','badge-gold')">
+          <div class="mb-icon" style="background:rgba(255,215,0,0.1)">📈</div>
+          <span>История перекупа</span>
+          <span class="mb-arrow">›</span>
+        </div>
+        <div class="more-btn" onclick="showToast('🏢 Бизнес трекер','badge-gold')">
+          <div class="mb-icon" style="background:rgba(255,215,0,0.1)">🏢</div>
+          <span>Трекер бизнеса</span>
+          <span class="mb-arrow">›</span>
+        </div>
+        <div class="more-btn" onclick="navTo('family')">
+          <div class="mb-icon" style="background:rgba(0,255,136,0.1)">👨‍👩‍👧‍👦</div>
+          <span>Семья</span>
+          <div class="badge badge-green" style="margin-left:auto;margin-right:8px">NEW</div>
+          <span class="mb-arrow">›</span>
+        </div>
+      </div>
+
+      <div style="margin:0 16px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+        <div style="padding:10px 16px;font-size:11px;font-weight:600;color:var(--text2);letter-spacing:0.06em;text-transform:uppercase;background:rgba(168,85,247,0.05)">Инструменты</div>
+        <div class="more-btn" onclick="navTo('wheel')">
+          <div class="mb-icon" style="background:rgba(255,215,0,0.1)">🎡</div>
+          <span>Колесо удачи</span>
+          <div class="badge badge-live" style="margin-left:auto;margin-right:8px;font-size:9px">DAILY</div>
+          <span class="mb-arrow">›</span>
+        </div>
+        <div class="more-btn" onclick="showToast('💼 Калькулятор работ','badge-purple')">
+          <div class="mb-icon" style="background:rgba(168,85,247,0.1)">💼</div>
+          <span>Калькулятор работ</span>
+          <span class="mb-arrow">›</span>
+        </div>
+        <div class="more-btn" onclick="navTo('casino')">
+          <div class="mb-icon" style="background:rgba(255,0,128,0.1)">🎰</div>
+          <span>Казино</span>
+          <span class="mb-arrow">›</span>
+        </div>
+        <div class="more-btn" onclick="showToast('🏠 Недвижимость','badge-purple')">
+          <div class="mb-icon" style="background:rgba(0,212,255,0.1)">🏠</div>
+          <span>Недвижимость</span>
+          <span class="mb-arrow">›</span>
+        </div>
+        <div class="more-btn" onclick="showToast('⚔️ BP Farm','badge-cyan')">
+          <div class="mb-icon" style="background:rgba(255,71,87,0.1)">⚔️</div>
+          <span>BP Ферма</span>
+          <span class="mb-arrow">›</span>
+        </div>
+        <div class="more-btn" onclick="showToast('📖 RP Шпаргалка','badge-cyan')">
+          <div class="mb-icon" style="background:rgba(0,212,255,0.1)">📖</div>
+          <span>RP Шпаргалка</span>
+          <span class="mb-arrow">›</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /screens -->
+
+  <!-- TICKER -->
+  <div id="ticker">
+    <div class="ticker-track">
+      <span class="ticker-item">🚗 Zentorno · <span class="tv">+$64K</span></span>
+      <span class="ticker-item">🎰 Слоты · <span class="tr">-$15K</span></span>
+      <span class="ticker-item">📊 Перекуп · <span class="tv">+$120K</span></span>
+      <span class="ticker-item">🏆 Jackpot · <span class="tg">$500K</span></span>
+      <span class="ticker-item">🚙 Buffalo · <span class="tv">+$48K</span></span>
+      <span class="ticker-item">💼 Такси · <span class="tv">+$28K</span></span>
+      <span class="ticker-item">🎡 Колесо · <span class="tg">+$5K</span></span>
+      <span class="ticker-item">🔥 Стрик · <span class="tv">14 дней</span></span>
+      <span class="ticker-item">🚗 Zentorno · <span class="tv">+$64K</span></span>
+      <span class="ticker-item">🎰 Слоты · <span class="tr">-$15K</span></span>
+      <span class="ticker-item">📊 Перекуп · <span class="tv">+$120K</span></span>
+      <span class="ticker-item">🏆 Jackpot · <span class="tg">$500K</span></span>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav id="nav-bar">
+    <button class="nav-item" id="nav-dashboard" onclick="navTo('dashboard');addRipple(this,event)">
+      <div class="nav-icon">
+        <svg class="nav-svg" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      </div>
+      <span class="nav-label">Дашборд</span>
+    </button>
+    <button class="nav-item" id="nav-wheel" onclick="navTo('wheel');addRipple(this,event)">
+      <div class="nav-icon">
+        <svg class="nav-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="3" x2="12" y2="9"/><line x1="12" y1="15" x2="12" y2="21"/><line x1="3" y1="12" x2="9" y2="12"/><line x1="15" y1="12" x2="21" y2="12"/></svg>
+        <div class="nav-dot"></div>
+      </div>
+      <span class="nav-label">Колесо</span>
+    </button>
+    <button class="nav-item" id="nav-add" onclick="openSheet('sheet-rental');addRipple(this,event)" style="flex:1.2">
+      <div class="nav-icon" style="width:48px;height:48px;background:linear-gradient(135deg,var(--cyan),#0080ff);border-radius:16px;box-shadow:0 0 20px rgba(0,212,255,0.4);margin-top:-8px;transition:transform 0.2s cubic-bezier(0.34,1.56,0.64,1)">
+        <svg style="width:24px;height:24px;fill:none;stroke:#000;stroke-width:2.5;stroke-linecap:round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </div>
+      <span class="nav-label">Добавить</span>
+    </button>
+    <button class="nav-item" id="nav-casino" onclick="navTo('casino');addRipple(this,event)">
+      <div class="nav-icon">
+        <svg class="nav-svg" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="16" cy="16" r="1.5" fill="currentColor"/><circle cx="16" cy="8" r="1.5" fill="currentColor"/><circle cx="8" cy="16" r="1.5" fill="currentColor"/></svg>
+      </div>
+      <span class="nav-label">Казино</span>
+    </button>
+    <button class="nav-item" id="nav-profile" onclick="navTo('profile');addRipple(this,event)">
+      <div class="nav-icon">
+        <svg class="nav-svg" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      </div>
+      <span class="nav-label">Профиль</span>
+    </button>
+    <button class="nav-item" id="nav-more" onclick="navTo('more');addRipple(this,event)">
+      <div class="nav-icon">
+        <svg class="nav-svg" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </div>
+      <span class="nav-label">Ещё</span>
+    </button>
+  </nav>
+</div>
+
+<script>
+// ===== PARTICLE BACKGROUND =====
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, particles = [];
+
+function resizeCanvas() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+
+function createParticles() {
+  particles = [];
+  const n = Math.floor(W * H / 8000);
+  for(let i = 0; i < n; i++) {
+    particles.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
+      r: Math.random() * 1.5 + 0.5,
+      a: Math.random() * 0.5 + 0.1,
+      c: ['#00d4ff','#a855f7','#00ff88','#ffd700'][Math.floor(Math.random()*4)]
+    });
+  }
+}
+
+function animateBg() {
+  ctx.clearRect(0,0,W,H);
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    if(p.x < 0) p.x = W; if(p.x > W) p.x = 0;
+    if(p.y < 0) p.y = H; if(p.y > H) p.y = 0;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+    ctx.fillStyle = p.c;
+    ctx.globalAlpha = p.a;
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+  requestAnimationFrame(animateBg);
+}
+
+resizeCanvas(); createParticles(); animateBg();
+window.addEventListener('resize', () => { resizeCanvas(); createParticles(); });
+
+// ===== NAVIGATION =====
+const screens = {
+  'dashboard': 'screen-dashboard',
+  'wheel': 'screen-wheel',
+  'casino': 'screen-casino',
+  'profile': 'screen-profile',
+  'more': 'screen-more',
+  'add-rental': null
+};
+
+let currentScreen = 'splash';
+
+function navTo(id) {
+  if(id === 'add-rental') { openSheet('sheet-rental'); return; }
+  if(id === 'family') { openSheet('sheet-family'); showToast('👨‍👩‍👧‍👦 Family Hub (в разработке)','badge-green'); return; }
+
+  const el = document.getElementById('screen-' + id);
+  if(!el) return;
+
+  const prev = document.getElementById('screen-' + currentScreen);
+  if(prev && prev !== el) {
+    prev.classList.remove('active');
+    prev.classList.add('prev');
+    setTimeout(() => prev.classList.remove('prev'), 400);
+  }
+
+  el.classList.add('active');
+  currentScreen = id;
+
+  // Update nav
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const navEl = document.getElementById('nav-' + id);
+  if(navEl) navEl.classList.add('active');
+
+  // Trigger animations
+  setTimeout(() => {
+    el.querySelectorAll('.fade-up').forEach((el, i) => {
+      el.style.transitionDelay = (i * 0.05) + 's';
+      el.classList.add('in');
+    });
+    el.querySelectorAll('.scale-in').forEach((el, i) => {
+      el.style.transitionDelay = (i * 0.05) + 's';
+      el.classList.add('in');
+    });
+    el.querySelectorAll('.prog-fill').forEach(f => {
+      const w = f.style.width;
+      f.style.width = w;
+      f.classList.add('animated');
+    });
+  }, 50);
+
+  if(id === 'dashboard') animateCounters();
+  if(id === 'wheel') initWheel();
+  if(id === 'dashboard') initMiniChart();
+}
+
+// ===== SPLASH -> DASHBOARD =====
+setTimeout(() => {
+  const splash = document.getElementById('screen-splash');
+  splash.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+  splash.style.opacity = '0';
+  splash.style.transform = 'scale(1.05)';
+  setTimeout(() => {
+    splash.classList.remove('active');
+    splash.style.display = 'none';
+    navTo('dashboard');
+    document.getElementById('nav-dashboard').classList.add('active');
+  }, 600);
+}, 2200);
+
+// ===== COUNTER ANIMATION =====
+function animateCounters() {
+  document.querySelectorAll('#screen-dashboard .counter[data-target]').forEach(el => {
+    const target = parseInt(el.dataset.target);
+    let current = 0;
+    const duration = 1200;
+    const start = performance.now();
+    function update(t) {
+      const elapsed = t - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 3);
+      current = Math.floor(ease * target);
+      el.textContent = current.toLocaleString('ru-RU');
+      if(progress < 1) requestAnimationFrame(update);
+      else el.textContent = target.toLocaleString('ru-RU');
+    }
+    requestAnimationFrame(update);
+  });
+}
+
+// ===== MINI CHART =====
+function initMiniChart() {
+  const canvas = document.getElementById('mini-chart');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth;
+  canvas.width = W;
+  canvas.height = 120;
+
+  const data = [420, 680, 520, 890, 640, 1020, 780];
+  const max = Math.max(...data) * 1.1;
+  const min = Math.min(...data) * 0.9;
+  const pts = data.map((v, i) => ({
+    x: (i / (data.length-1)) * (W - 20) + 10,
+    y: 100 - ((v - min) / (max - min)) * 80 + 10
+  }));
+
+  // Gradient fill
+  const grad = ctx.createLinearGradient(0,0,0,120);
+  grad.addColorStop(0,'rgba(0,212,255,0.3)');
+  grad.addColorStop(1,'rgba(0,212,255,0)');
+
+  ctx.beginPath();
+  pts.forEach((p,i) => i===0 ? ctx.moveTo(p.x,p.y) : ctx.bezierCurveTo(
+    pts[i-1].x + (p.x - pts[i-1].x)/2, pts[i-1].y,
+    pts[i-1].x + (p.x - pts[i-1].x)/2, p.y,
+    p.x, p.y
+  ));
+  ctx.lineTo(pts[pts.length-1].x, 120);
+  ctx.lineTo(pts[0].x, 120);
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  ctx.beginPath();
+  pts.forEach((p,i) => i===0 ? ctx.moveTo(p.x,p.y) : ctx.bezierCurveTo(
+    pts[i-1].x + (p.x - pts[i-1].x)/2, pts[i-1].y,
+    pts[i-1].x + (p.x - pts[i-1].x)/2, p.y,
+    p.x, p.y
+  ));
+  ctx.strokeStyle = '#00d4ff';
+  ctx.lineWidth = 2;
+  ctx.shadowColor = '#00d4ff';
+  ctx.shadowBlur = 8;
+  ctx.stroke();
+
+  pts.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 3, 0, Math.PI*2);
+    ctx.fillStyle = '#00d4ff';
+    ctx.shadowColor = '#00d4ff';
+    ctx.shadowBlur = 10;
+    ctx.fill();
+  });
+}
+
+// ===== WHEEL =====
+let wheelAngle = 0;
+let isSpinning = false;
+const wheelSegments = [
+  { label: '$500K', color: '#ffd700', text: '#000' },
+  { label: '+1 VIP', color: '#00d4ff', text: '#000' },
+  { label: '$50K', color: '#a855f7', text: '#fff' },
+  { label: 'Ключ', color: '#00ff88', text: '#000' },
+  { label: '$10K', color: '#ff4757', text: '#fff' },
+  { label: 'Ничего', color: '#4a5568', text: '#fff' },
+  { label: '$100K', color: '#ff0080', text: '#fff' },
+  { label: '+3 VIP', color: '#0080ff', text: '#fff' },
+];
+
+function initWheel() {
+  const canvas = document.getElementById('wheel-canvas');
+  if(!canvas) return;
+  drawWheel(wheelAngle);
+}
+
+function drawWheel(angle) {
+  const canvas = document.getElementById('wheel-canvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const cx = 140, cy = 140, r = 130;
+  const n = wheelSegments.length;
+  ctx.clearRect(0,0,280,280);
+
+  // Outer glow ring
+  ctx.beginPath();
+  ctx.arc(cx,cy,r+8,0,Math.PI*2);
+  const grad = ctx.createLinearGradient(0,0,280,280);
+  grad.addColorStop(0,'rgba(0,212,255,0.3)');
+  grad.addColorStop(0.5,'rgba(168,85,247,0.3)');
+  grad.addColorStop(1,'rgba(0,212,255,0.3)');
+  ctx.strokeStyle = grad;
+  ctx.lineWidth = 4;
+  ctx.stroke();
+
+  wheelSegments.forEach((seg, i) => {
+    const start = angle + (i / n) * Math.PI * 2 - Math.PI/2;
+    const end = start + (1/n) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,start,end);
+    ctx.fillStyle = seg.color;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.rotate(start + (1/(n*2)) * Math.PI * 2);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = seg.text;
+    ctx.font = 'bold 12px Space Grotesk, sans-serif';
+    ctx.fillText(seg.label, r-10, 4);
+    ctx.restore();
+  });
+
+  // Center circle
+  ctx.beginPath();
+  ctx.arc(cx,cy,24,0,Math.PI*2);
+  ctx.fillStyle = '#030712';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(0,212,255,0.4)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.fillStyle = '#00d4ff';
+  ctx.font = 'bold 14px Space Grotesk';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('★', cx, cy);
+}
+
+function spinWheel() {
+  if(isSpinning) return;
+  isSpinning = true;
+  document.getElementById('spin-btn').disabled = true;
+
+  const spins = 5 + Math.random() * 5;
+  const target = wheelAngle + spins * Math.PI * 2;
+  const duration = 3000 + Math.random() * 2000;
+  const start = performance.now();
+  const startAngle = wheelAngle;
+
+  function easeOut(t) { return 1 - Math.pow(1 - t, 4); }
+
+  function animate(t) {
+    const elapsed = t - start;
+    const progress = Math.min(elapsed / duration, 1);
+    wheelAngle = startAngle + (target - startAngle) * easeOut(progress);
+    drawWheel(wheelAngle);
+    if(progress < 1) requestAnimationFrame(animate);
+    else {
+      isSpinning = false;
+      document.getElementById('spin-btn').disabled = false;
+      const n = wheelSegments.length;
+      const norm = ((wheelAngle % (Math.PI*2)) + Math.PI*2) % (Math.PI*2);
+      const idx = Math.floor(((Math.PI*2 - norm + Math.PI/2) % (Math.PI*2)) / (Math.PI*2/n)) % n;
+      showToast('🎉 ' + wheelSegments[idx].label + '!', 'badge-gold');
+    }
+  }
+  requestAnimationFrame(animate);
+}
+
+// ===== SWIPE GESTURES =====
+let swipeStartX = 0;
+let swipeEl = null;
+let activeSwipe = null;
+
+function swipeStart(el, e) {
+  swipeStartX = e.touches[0].clientX;
+  swipeEl = el;
+  if(activeSwipe && activeSwipe !== el.closest('.swipe-item')) {
+    activeSwipe.classList.remove('swiped');
+    activeSwipe = null;
+  }
+}
+
+function swipeMove(el, e) {
+  if(!swipeEl) return;
+  const dx = e.touches[0].clientX - swipeStartX;
+  if(Math.abs(dx) > 5) e.preventDefault();
+  const item = el.closest('.swipe-item');
+  if(dx < -40) {
+    item.classList.add('swiped');
+    activeSwipe = item;
+  } else if(dx > 10) {
+    item.classList.remove('swiped');
+  }
+}
+
+function swipeEnd(el, e) {
+  swipeEl = null;
+}
+
+// ===== PULL TO REFRESH =====
+let ptrStart = 0;
+let ptrActive = false;
+const dashScreen = document.getElementById('screen-dashboard');
+
+dashScreen.addEventListener('touchstart', e => {
+  if(dashScreen.scrollTop === 0) ptrStart = e.touches[0].clientY;
+}, {passive:true});
+
+dashScreen.addEventListener('touchmove', e => {
+  if(!ptrStart) return;
+  const dy = e.touches[0].clientY - ptrStart;
+  if(dy > 60 && dashScreen.scrollTop === 0) {
+    document.getElementById('ptr-indicator').classList.add('visible');
+    ptrActive = true;
+  }
+}, {passive:true});
+
+dashScreen.addEventListener('touchend', () => {
+  if(ptrActive) {
+    const ind = document.getElementById('ptr-indicator');
+    ind.querySelector('span').style.animation = 'spin 0.8s linear infinite';
+    setTimeout(() => {
+      ind.classList.remove('visible');
+      ind.querySelector('span').style.animation = '';
+      ptrActive = false; ptrStart = 0;
+      animateCounters();
+      showToast('✓ Обновлено','badge-green');
+    }, 1200);
+  }
+});
+
+// ===== BOTTOM SHEET =====
+function openSheet(id) {
+  document.getElementById(id).classList.add('open');
+  document.getElementById('overlay').classList.add('visible');
+}
+
+function closeAllSheets() {
+  document.querySelectorAll('.bottom-sheet').forEach(s => s.classList.remove('open'));
+  document.getElementById('overlay').classList.remove('visible');
+  document.getElementById('ctx-menu').classList.remove('show');
+}
+
+// BS drag to close
+document.querySelectorAll('.bottom-sheet').forEach(bs => {
+  let startY = 0;
+  bs.addEventListener('touchstart', e => { startY = e.touches[0].clientY; }, {passive:true});
+  bs.addEventListener('touchmove', e => {
+    const dy = e.touches[0].clientY - startY;
+    if(dy > 80) closeAllSheets();
+  }, {passive:true});
+});
+
+// ===== TOAST =====
+function showToast(text, cls='badge-green') {
+  const t = document.getElementById('toast');
+  t.querySelector('#toast-text').textContent = text;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function submitRental() {
+  closeAllSheets();
+  showToast('✓ Аренда записана!', 'badge-green');
+}
+
+function submitCasino() {
+  closeAllSheets();
+  showToast('🎰 Сессия сохранена!', 'badge-purple');
+}
+
+// ===== RIPPLE =====
+function addRipple(el, e) {
+  const rect = el.getBoundingClientRect();
+  const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+  const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+  const r = document.createElement('span');
+  r.className = 'ripple';
+  r.style.cssText = `left:${x}px;top:${y}px;width:20px;height:20px;margin:-10px`;
+  el.appendChild(r);
+  setTimeout(() => r.remove(), 600);
+}
+
+// ===== TAP CARD EFFECT =====
+function tapCard(el) {
+  el.classList.add('tap-active');
+  setTimeout(() => el.classList.remove('tap-active'), 150);
+}
+
+// ===== FILTER PILLS =====
+function setFilter(el) {
+  el.closest('.filter-pills').querySelectorAll('.fpill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  animateCounters();
+}
+
+// ===== CONTEXT MENU =====
+function showCtx(e, id) {
+  e.preventDefault();
+  const menu = document.getElementById('ctx-menu');
+  menu.style.left = Math.min(e.clientX, window.innerWidth - 180) + 'px';
+  menu.style.top = Math.min(e.clientY, window.innerHeight - 160) + 'px';
+  menu.classList.add('show');
+  document.getElementById('overlay').classList.add('visible');
+}
+
+function ctxEdit() { closeAllSheets(); showToast('✏️ Редактирование...','badge-cyan'); }
+function ctxCopy() { closeAllSheets(); showToast('📋 Скопировано!','badge-cyan'); }
+function ctxDelete() { closeAllSheets(); showToast('🗑️ Удалено','badge-red'); }
+
+// ===== LONG PRESS =====
+let lpTimer;
+document.querySelectorAll('.swipe-item-front').forEach(el => {
+  el.addEventListener('touchstart', e => {
+    lpTimer = setTimeout(() => showCtx(e.touches[0], 0), 600);
+  });
+  el.addEventListener('touchend', () => clearTimeout(lpTimer));
+  el.addEventListener('touchmove', () => clearTimeout(lpTimer));
+});
+
+// ===== CHART PILLS =====
+document.querySelectorAll('.cpill').forEach(p => {
+  p.addEventListener('click', function() {
+    this.closest('.chart-pills').querySelectorAll('.cpill').forEach(x => x.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// ===== SEGMENT TABS =====
+document.querySelectorAll('.seg-tab').forEach(t => {
+  t.addEventListener('click', function() {
+    this.closest('.segment-tabs').querySelectorAll('.seg-tab').forEach(x => x.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// ===== BP TASKS =====
+document.querySelectorAll('.bp-task').forEach(t => {
+  t.addEventListener('click', function() {
+    this.classList.toggle('done');
+    showToast(this.classList.contains('done') ? '✓ Задание выполнено!' : 'Задание снято', 'badge-' + (this.classList.contains('done') ? 'green' : 'red'));
+  });
+});
+
+// Initial wheel draw
+setTimeout(() => drawWheel(0), 100);
+</script>
+</body>
+</html>
